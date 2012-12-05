@@ -1,0 +1,15 @@
+A Daemon should -
+- be started from the command line
+- accept port arguements
+- couple 2 chatters
+- allow for a chatter to quit
+- allow for a queue of chatters
+- use the current servers IP
+
+A Chatter should -
+- be able to choose a server/daemon
+- be able to join a chat
+- be able to leave a chat
+- be able to chat
+- be put into a queue when starting the chatr client
+- be put back into a queue when a chat is finished(disconnected)
