@@ -1,4 +1,4 @@
-version = File.read(File.expand_path("../tpdata_version",__FILE__)).strip
+version = File.read(File.expand_path("../chatr_version",__FILE__)).strip
 
 Gem::Specification.new do |s|
   s.name             = 'chatr'
