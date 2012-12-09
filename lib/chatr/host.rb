@@ -2,9 +2,8 @@ module Chatr
   class Host
 
     def initialize(port=4242)
-      local = local_ip
-      build_connection @local, port
-      connections = grab_connections
+      @host = build_connection local_ip, port
+      @connections = grab_connections
     end
 
     # Find local ip
@@ -14,22 +13,21 @@ module Chatr
 
     # Start Socket connection
     def build_connection(ip,port)
-      @host = TCPServer.new(ip,port)
-      @ost.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEADDR, 1)
+      TCPServer.new(ip,port)
     end
 
     # Builds an Array to store connections, adds current socket in 0
     def grab_connections
-      @connections = []
-      @connections << @host
+      connections = []
+      connections << @host
     end
 
     # Take new socket from remote connection.
     # This will write out new information to the client and output this to the host as well
     def accept_new_connection
-      newsock = @host.accept
-      @connections.push(newsock)
-      newsock.write("Write EOF to disconnect\n")
+      new_socket = @host.accept
+      @connections.push(new_socket)
+      newsock.write("Write QUIT to disconnect\n")
       str = sprintf "Client #{newsock.peeraddr[2]}:#{newsock.peeraddr[1]} joined.\n"
       broadcast_string(str,newsock)
     end
@@ -49,9 +47,9 @@ module Chatr
     end
 
     # Print the string to the open connected sockets
-    def broadcast_string(string,omit_sock)
+    def broadcast_string(string,origin)
       @connections.each do |client|
-        if client != @host && client != omit_sock
+        if client != @host && client != origin
           client.write(string)
         end
       end

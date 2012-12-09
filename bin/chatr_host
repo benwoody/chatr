@@ -2,20 +2,25 @@
 
 require 'chatr'
 
+# grab the first arguement from chatr_host
 port = ARGV[0]
 
 chatr = Chatr::Host.new port
 
 puts "Chat server initiated at #{chatr.local_ip} on port #{port}"
+
+host = chatr.instance_variable_get(:@host)
+connections = chatr.instance_variable_get(:@connections)
+
 while true
-  session = select(@connections,nil, nil,nil)
+  session = select(connections,nil, nil,nil)
   if session != nil
     session[0].each do |socket|
-      if socket == @serverSocket
+      if socket == host
         chatr.accept_new_connection
       else
         input = socket.gets
-        if input.chomp == "EOF"
+        if input.chomp == "QUIT"
           chatr.client_quit socket
         else
           chatr.write_out input, socket
