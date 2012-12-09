@@ -2,10 +2,13 @@ require 'spec_helper'
 
 describe 'Host' do
 
-	before
+	before :all do
+		@chatr = Chatr::Host.new
+	end
 
 	it 'should find local ip address' do
-
+		ip_from_google = UDPSocket.open {|s| s.connect("64.233.187.99", 1); s.addr.last}
+		@chatr.local_ip.should == ip_from_google
 	end
 
 	it 'should build a Socket connection' do
