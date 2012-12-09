@@ -2,30 +2,9 @@ module Chatr
   class Host
 
     def initialize(port=4242)
-      host = local_ip
-      build_connection host, port
-      puts "Chat server initiated at #{host} on port #{port}"
-      grab_sockets
-    end
-
-    def run
-      while true
-        session = select(@connections,nil, nil,nil)
-        if session != nil
-          session[0].each do |socket|
-            if socket == @serverSocket
-              accept_new_connection
-            else
-              input = socket.gets
-              if input.chomp == "EOF"
-                client_quit socket
-              else
-                write_out input, socket
-              end
-            end
-          end
-        end
-      end
+      local = local_ip
+      build_connection @local, port
+      connections = grab_connections
     end
 
     # Find local ip
@@ -35,20 +14,20 @@ module Chatr
 
     # Start Socket connection
     def build_connection(ip,port)
-      @serverSocket = TCPServer.new(ip,port)
-      @serverSocket.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEADDR, 1)
+      @host = TCPServer.new(ip,port)
+      @ost.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEADDR, 1)
     end
 
     # Builds an Array to store connections, adds current socket in 0
-    def grab_sockets
+    def grab_connections
       @connections = []
-      @connections << @serverSocket
+      @connections << @host
     end
 
     # Take new socket from remote connection.
     # This will write out new information to the client and output this to the host as well
     def accept_new_connection
-      newsock = @serverSocket.accept
+      newsock = @host.accept
       @connections.push(newsock)
       newsock.write("Write EOF to disconnect\n")
       str = sprintf "Client #{newsock.peeraddr[2]}:#{newsock.peeraddr[1]} joined.\n"
@@ -72,7 +51,7 @@ module Chatr
     # Print the string to the open connected sockets
     def broadcast_string(string,omit_sock)
       @connections.each do |client|
-        if client != @serverSocket && client != omit_sock
+        if client != @host && client != omit_sock
           client.write(string)
         end
       end

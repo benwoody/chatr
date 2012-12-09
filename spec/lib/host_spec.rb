@@ -2,6 +2,15 @@ require 'spec_helper'
 
 describe 'Host' do
 
+	before
+
+	it 'should find local ip address' do
+
+	end
+
+	it 'should build a Socket connection' do
+	end
+
 	it 'should accept new connections' do
 	end
 
