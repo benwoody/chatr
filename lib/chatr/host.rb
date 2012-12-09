@@ -12,25 +12,22 @@ module Chatr
 
     def run
       while true
-        res = select(@connections,nil, nil,nil)
-        if res != nil
-          res[0].each do |sock|
+        session = select(@connections,nil, nil,nil)
+        if session != nil
+          session[0].each do |sock|
             if sock == @serverSocket
               accept_new_connection
             else
-              w = sock.gets
-              if w.chomp == "EOF"
+              if sock.eof?
                 client_quit sock
               else
-                write_out w, sock
+                write_out sock.gets, sock
               end
             end
           end
         end
       end
     end
-
-    private
 
     # Take new socket from remote connection.
     # This will write out new information to the client and output this to the host as well
