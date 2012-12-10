@@ -7,8 +7,9 @@ module Chatr
     end
 
     # Find local ip
+    # This attempts an open connection to google.com and checks the local address used to attempt the request
     def local_ip
-      Socket.ip_address_list.last.ip_address
+      UDPSocket.open {|s| s.connect("64.233.187.99", 1); s.addr.last}
     end
 
     # Start Socket connection

@@ -7,8 +7,8 @@ describe 'Host' do
 	end
 
 	it 'should find local ip address' do
-		ip_from_google = UDPSocket.open {|s| s.connect("64.233.187.99", 1); s.addr.last}
-		@chatr.local_ip.should == ip_from_google
+		ip_regex = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/
+		@chatr.local_ip.should match ip_regex
 	end
 
 	it 'should build a Socket connection' do
