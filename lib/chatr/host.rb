@@ -1,6 +1,8 @@
 module Chatr
   class Host
 
+    attr_reader :host, :connections
+
     def initialize(port=4242)
       @host = build_connection local_ip, port
       @connections = grab_connections
@@ -23,28 +25,24 @@ module Chatr
       connections << @host
     end
 
+    # Gives the number of connected clients
+    # Subtracts 1 to account for the host
+    def room_size
+      @connections.size - 1
+    end
+
     # Take new socket from remote connection.
     # This will write out new information to the client and output this to the host as well
     def accept_new_connection
       new_socket = @host.accept
-      @connections.push(new_socket)
-      newsock.write("Write QUIT to disconnect\n")
-      str = sprintf "Client #{newsock.peeraddr[2]}:#{newsock.peeraddr[1]} joined.\n"
-      broadcast_string(str,newsock)
-    end
-
-    # Writes out the clients information and chat string to both host and connected clients
-    def write_out(string,sock)
-      str = sprintf "[#{sock.peeraddr[2]}|#{sock.peeraddr[1]}]: #{string}"
-      broadcast_string(str,sock)
+      @connections << new_socket
+      new_socket.write("Write QUIT to disconnect\n")
     end
 
     # Writes out when a client writes EOF and then outputs that information to host and clients
-    def client_quit(sock)
-      str = sprintf "Client #{sock.peeraddr[2]}:#{sock.peeraddr[1]} disconnected\n"
-      broadcast_string(str,sock)
-      sock.close
-      @connections.delete(sock)
+    def client_quit(socket)
+      @connections.delete(socket)
+      socket.close
     end
 
     # Print the string to the open connected sockets

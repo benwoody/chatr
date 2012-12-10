@@ -5,25 +5,28 @@ require 'chatr'
 # grab the first arguement from chatr_host
 port = ARGV[0]
 
-chatr = Chatr::Host.new port
+chatr = Chatr::Host.new(port=4242)
 
 puts "Chat server initiated at #{chatr.local_ip} on port #{port}"
 
-host = chatr.instance_variable_get(:@host)
-connections = chatr.instance_variable_get(:@connections)
-
 while true
-  session = select(connections,nil, nil,nil)
+  session = select(chatr.connections,nil, nil,nil)
   if session != nil
     session[0].each do |socket|
-      if socket == host
+      if socket == chatr.host
         chatr.accept_new_connection
+        new_socket = chatr.connections.last
+        join_msg = sprintf "Client #{new_socket.peeraddr[2]}:#{new_socket.peeraddr[1]} joined.\n"
+        chatr.broadcast_string(join_msg,new_socket)
       else
         input = socket.gets
         if input.chomp == "QUIT"
+          quit_msg = sprintf "Client #{socket.peeraddr[2]}:#{socket.peeraddr[1]} disconnected\n"
+          chatr.broadcast_string(quit_msg,socket)
           chatr.client_quit socket
         else
-          chatr.write_out input, socket
+          output = sprintf "[#{socket.peeraddr[2]}|#{socket.peeraddr[1]}]: #{input}"
+          chatr.broadcast_string(output,socket)
         end
       end
     end
