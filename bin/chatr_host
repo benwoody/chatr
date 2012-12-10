@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-require_relative '../lib/chatr.rb'
+require File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib', 'chatr'))
 
 # grab the first arguement from chatr_host
 port = ARGV[0]
